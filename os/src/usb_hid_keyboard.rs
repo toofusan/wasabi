@@ -91,6 +91,8 @@ fn usage_id_to_char(usage_id: u8) -> Result<KeyEvent> {
         54 => Ok(KeyEvent::Char(',')),
         55 => Ok(KeyEvent::Char('.')),
         56 => Ok(KeyEvent::Char('/')),
+        79 => Ok(KeyEvent::Right),
+        80 => Ok(KeyEvent::Left),
         _ => Err(Error::FailedString(format!(
             "Unhandled USB HID Keyboard Usage ID {usage_id:}"
         ))),
@@ -124,12 +126,16 @@ pub async fn usb_hid_keyboard_mainloop(ddc: UsbDeviceDriverContext) -> Result<()
                 }
                 let mut next_pressed_keys = BitSet::<32>::new();
                 // First two bytes are modifiers, so skip them
-                let keycodes = report.iter().skip(2);
+                // let keycodes = report.iter().skip(2);
+                info!("keyboard report: {report:?}");
+                let keycodes = report.iter();
                 for value in keycodes {
+                    info!("keyboard value: {value:?}");
                     next_pressed_keys.insert(*value as usize).unwrap();
                 }
                 let change = prev_pressed_keys.symmetric_difference(&next_pressed_keys);
                 for id in change.iter() {
+                    info!("keyboard key: {id:?}");
                     let c = usage_id_to_char(id as u8);
                     if let Ok(c) = c {
                         if !prev_pressed_keys.get(id).unwrap_or(false) {

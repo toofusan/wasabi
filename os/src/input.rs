@@ -12,6 +12,8 @@ pub enum KeyEvent {
     None,
     Char(char),
     Enter,
+    Right,
+    Left,
 }
 
 impl KeyEvent {
@@ -19,6 +21,8 @@ impl KeyEvent {
         match self {
             KeyEvent::Char(c) => Some(*c),
             KeyEvent::Enter => Some('\n'),
+            KeyEvent::Right => Some('>'),
+            KeyEvent::Left => Some('<'),
             _ => None,
         }
     }
